@@ -1,34 +1,137 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактор обрезки фото</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Редактор изображений</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 800px;
+      text-align: center;
+    }
+
+    .cropper-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .cropper-container img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .controls {
+      margin-top: 10px;
+    }
+
+    .controls button {
+      margin: 5px;
+      padding: 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .image-upload {
+      margin: 10px 0;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .upload-button {
+      padding: 10px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    .upload-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Редактор обрезки фото</h1>
-        <input type="file" id="imageInput" accept="image/*">
-        <select id="aspectRatio">
-            <option value="16:9">16:9</option>
-            <option value="4:3">4:3</option>
-            <option value="2.35:1">2.35:1</option>
-            <option value="2.39:1">2.39:1</option>
-            <option value="free">Произвольное</option>
-        </select>
-        <div class="controls">
-            <button onclick="initCrop()">Применить соотношение</button>
-            <button onclick="downloadImage()" id="downloadBtn">Скачать результат</button>
-        </div>
-        <div class="editor-container">
-            <div class="image-wrapper">
-                <canvas id="sourceCanvas"></canvas>
-                <canvas id="cropCanvas"></canvas>
-            </div>
-        </div>
+
+  <div class="container">
+    <h1>Редактор изображений</h1>
+
+    <div class="image-upload">
+      <label for="file-upload" class="upload-button">Загрузить изображение</label>
+      <input type="file" id="file-upload" accept="image/*">
     </div>
-    <script src="script.js"></script>
+
+    <div class="cropper-container">
+      <img id="image" src="" alt="Загруженное изображение">
+    </div>
+
+    <div class="controls">
+      <button onclick="changeAspectRatio(1, 1)">1:1</button>
+      <button onclick="changeAspectRatio(16, 9)">16:9</button>
+      <button onclick="changeAspectRatio(4, 3)">4:3</button>
+      <button onclick="changeAspectRatio(2.35, 1)">2.35:1</button>
+      <button onclick="changeAspectRatio(2.39, 1)">2.39:1</button>
+      <button onclick="downloadImage()">Скачать</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+  <script>
+    let cropper;
+    const imageElement = document.getElementById('image');
+
+    document.getElementById('file-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          imageElement.src = event.target.result;
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(imageElement, {
+            aspectRatio: 1, // Начальное соотношение сторон 1:1
+            viewMode: 1,
+            responsive: true,
+            autoCropArea: 1,
+            cropBoxResizable: true,
+            ready() {
+              console.log('Готово к обрезке');
+            }
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function changeAspectRatio(width, height) {
+      if (cropper) {
+        cropper.setAspectRatio(width / height);
+      }
+    }
+
+    function downloadImage() {
+      if (cropper) {
+        const canvas = cropper.getCroppedCanvas();
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = 'cropped-image.png';
+        link.click();
+      }
+    }
+  </script>
+
 </body>
 </html>
