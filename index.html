@@ -91,6 +91,17 @@
     .upload-button:hover {
       background-color: #0056b3;
     }
+
+    .resolution {
+      margin-top: 10px;
+      color: #333;
+    }
+
+    select {
+      padding: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -106,14 +117,20 @@
     <div class="cropper-container">
       <img id="image" src="" alt="Загруженное изображение">
     </div>
+    
+    <div class="resolution">
+      <p id="resolution">Разрешение: N/A</p>
+    </div>
   </div>
 
   <div class="controls">
-    <button onclick="changeAspectRatio(1, 1)">1:1</button>
-    <button onclick="changeAspectRatio(16, 9)">16:9</button>
-    <button onclick="changeAspectRatio(4, 3)">4:3</button>
-    <button onclick="changeAspectRatio(2.35, 1)">2.35:1</button>
-    <button onclick="changeAspectRatio(2.39, 1)">2.39:1</button>
+    <select id="aspect-ratio-select">
+      <option value="1:1">1:1</option>
+      <option value="16:9">16:9</option>
+      <option value="4:3">4:3</option>
+      <option value="2.35:1">2.35:1</option>
+      <option value="2.39:1">2.39:1</option>
+    </select>
     <button onclick="downloadImage()">Скачать</button>
   </div>
 
@@ -121,6 +138,8 @@
   <script>
     let cropper;
     const imageElement = document.getElementById('image');
+    const resolutionText = document.getElementById('resolution');
+    const aspectRatioSelect = document.getElementById('aspect-ratio-select');
 
     document.getElementById('file-upload').addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -136,7 +155,7 @@
             autoCropArea: 1,
             cropBoxResizable: true,
             ready() {
-              console.log('Готово к обрезке');
+              updateResolution();
             }
           });
         };
@@ -144,9 +163,22 @@
       }
     });
 
-    function changeAspectRatio(width, height) {
+    aspectRatioSelect.addEventListener('change', () => {
+      const ratio = aspectRatioSelect.value.split(':');
+      const width = parseInt(ratio[0]);
+      const height = parseInt(ratio[1]);
       if (cropper) {
         cropper.setAspectRatio(width / height);
+        updateResolution();
+      }
+    });
+
+    function updateResolution() {
+      if (cropper) {
+        const canvas = cropper.getCroppedCanvas();
+        const width = canvas.width;
+        const height = canvas.height;
+        resolutionText.textContent = `Разрешение: ${width} x ${height}`;
       }
     }
 
