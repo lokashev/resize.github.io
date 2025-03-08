@@ -33,9 +33,9 @@
         .dark-theme .cropper-modal {
             background-color: rgba(0, 0, 0, 0.7);
         }
-        .bg-light .dark-theme{
+        .dark-theme .bg-light {
           background-color: rgb(0 0 0) !important;
       }
-      .card-body .dark-theme{
-        color: white;
+         .dark-theme .card-body {
+          color: white;
     }
